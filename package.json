@@ -22,6 +22,7 @@
   "homepage": "https://github.com/vadimvorenas/telegramWeather#readme",
   "dependencies": {
     "fs": "0.0.1-security",
-    "telegraf": "^3.32.0"
+    "telegraf": "^3.32.0",
+    "winston": "^3.2.1"
   }
 }
