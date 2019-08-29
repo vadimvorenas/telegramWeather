@@ -2,6 +2,7 @@
 logs/
 cache/
 node_modules/
+.vscode/
 *.jpg
 *.jpeg
 *.png

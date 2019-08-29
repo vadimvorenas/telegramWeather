@@ -11,7 +11,7 @@ module.exports.appLogger = winston.createLogger({
 })
 
 
-module.exports.appLogger = winston.createLogger({
+module.exports.errLogger = winston.createLogger({
     level: 'error',
     format: winston.format.json(),
     transports: [
