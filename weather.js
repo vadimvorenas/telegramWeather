@@ -22,7 +22,7 @@ http.get(weather_url, (res) => {
     res.on('data', function (chunk) {
         let result = JSON.parse(chunk)
         let day = dayOfWeekRus()
-        let msg = `В ${result.name} ${result.main.temp}°C\nс-в ${result.wind.speed}м/с, влажность ${result.main.humidity}%\nСейчас ${result['weather']['0']['description']}`
+        let msg = `В ${result.name} ${result.main.temp}°C\nс-в: ${result.wind.speed}м/с, влажность ${result.main.humidity}%\nСейчас ${result['weather']['0']['description']}`
         logger.appLogger.info(msg)
         bot.telegram.sendMessage(env.id.my, msg)
         databaseStart()

@@ -1,11 +1,14 @@
 const winston = require('winston')
+let date = new Date()
+date = `${date.getMonth()}-${date.getDate()}-${date.getHours()}`
 
 module.exports.appLogger = winston.createLogger({
     level: 'info',
     format: winston.format.json(),
     transports: [
         new (winston.transports.File)({
-            filename: "logs/" + 'info.log'
+            filename: "logs/" + 'info' + date + '.log',
+            maxSize: '10m'
         })
     ]
 })
@@ -16,7 +19,8 @@ module.exports.errLogger = winston.createLogger({
     format: winston.format.json(),
     transports: [
         new (winston.transports.File)({
-            filename: "logs/" + 'error.log'
+            filename: "logs/" + 'error' + date + '.log',
+            maxSize: '10m'
         })
     ]
 })
