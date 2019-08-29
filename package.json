@@ -1,0 +1,27 @@
+{
+  "name": "mytelegrambot",
+  "version": "1.3.0",
+  "description": "my weather telegram bot",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/vadimvorenas/telegramWeather.git"
+  },
+  "keywords": [
+    "bot",
+    "telegram"
+  ],
+  "author": "vadimvorenas",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/vadimvorenas/telegramWeather/issues"
+  },
+  "homepage": "https://github.com/vadimvorenas/telegramWeather#readme",
+  "dependencies": {
+    "fs": "0.0.1-security",
+    "telegraf": "^3.32.0"
+  }
+}

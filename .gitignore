@@ -1,0 +1,12 @@
+.env
+logs/
+cache/
+node_modules/
+*.jpg
+*.jpeg
+*.png
+*.log
+*.zip
+*.7z
+*.gz
+*.tar
