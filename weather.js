@@ -26,7 +26,7 @@ http.get(weather_url, (res) => {
         let msg = `В ${result.name} ${result.main.temp}°C\n${result.wind.speed}м/с, влажность ${result.main.humidity}%\nСейчас ${result['weather']['0']['description']} (${result.clouds.all}%)\nВосход: ${sun(result.sys.sunrise*1000)} Закат: ${sun(result.sys.sunset*1000)}`
         logger.appLogger.info(result)
         logger.appLogger.info(msg)
-        bot.telegram.sendMessage(env.id.my, msg)
+        bot.telegram.sendMessage(env.id.pogoda, msg)
         databaseStart()
         setWeather({
             city: result.name,
