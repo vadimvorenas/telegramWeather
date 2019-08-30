@@ -11,3 +11,5 @@ node_modules/
 *.7z
 *.gz
 *.tar
+*.sh
+

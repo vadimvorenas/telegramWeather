@@ -22,7 +22,9 @@ http.get(weather_url, (res) => {
     res.on('data', function (chunk) {
         let result = JSON.parse(chunk)
         let day = dayOfWeekRus()
-        let msg = `В ${result.name} ${result.main.temp}°C\nс-в: ${result.wind.speed}м/с, влажность ${result.main.humidity}%\nСейчас ${result['weather']['0']['description']}`
+        let sun = (timestamp)=>{let date = new Date(timestamp); return `${date.getHours()}:${date.getMinutes()}`}
+        let msg = `В ${result.name} ${result.main.temp}°C\n${result.wind.speed}м/с, влажность ${result.main.humidity}%\nСейчас ${result['weather']['0']['description']} (${result.clouds.all}%)\nВосход: ${sun(result.sys.sunrise*1000)} Закат: ${sun(result.sys.sunset*1000)}`
+        logger.appLogger.info(result)
         logger.appLogger.info(msg)
         bot.telegram.sendMessage(env.id.my, msg)
         databaseStart()
@@ -30,8 +32,16 @@ http.get(weather_url, (res) => {
             city: result.name,
             description: result['weather']['0']['description'],
             temp: result.main.temp,
-            day: day ? day : '8',
-            speed: result.wind.speed
+            day: day ? day : null,
+            speed: result.wind.speed,
+            pressure: result.main.pressure,
+            humidity: result.main.humidity,
+            temp_min: result.main.temp_min,
+            temp_max: result.main.temp_max,
+            wind_deg: result.wind.deg,
+            clouds_percent: result.clouds.all,
+            sunrise: result.sys.sunrise,
+            sunset: result.sys.sunset,
         })
         databaseEnd()
     })
@@ -49,7 +59,7 @@ function databaseStart() {
 }
 
 function setWeather(data) {
-    let query = `INSERT INTO weather (city, description, temp, dow, wind_speed) VALUES (\'${data.city}\', \'${data.description}\', \'${data.temp}\', \'${data.day}\', \'${data.speed}\')`
+    let query = `INSERT INTO weather (city, description, temp, dow, wind_speed, pressure, humidity, temp_min, temp_max, wind_deg, clouds_percent, sunrise, sunset) VALUES (\'${data.city}\', \'${data.description}\', \'${data.temp}\', \'${data.day}\', \'${data.speed}\', \'${data.pressure}\', \'${data.humidity}\', \'${data.temp_min}\', \'${data.temp_max}\', \'${data.wind_deg}\', \'${data.clouds_percent}\', \'${data.sunrise}\', \'${data.sunset}\')`
     logger.appLogger.info(query)
     connection.query(query,
         function (err, results, fields) {
@@ -98,23 +108,3 @@ function dayOfWeekRus(day = new Date()) {
             return false;
     }
 }
-
-// bot.start((ctx) => {
-//     console.log('Id пользователя:', ctx.from.id);
-//     return ctx.reply('Добро пожаловать!');
-// })
-
-// bot.hears('Hi', ctx => {
-//     console.log('Id пользователя:', ctx.from.id)
-//     return ctx.reply('Hey!')
-// })
-
-// logger.appLogger.info('Start')
-
-// try {
-//     bot.telegram.sendMessage(env.id.my, 'I ready')
-// } catch (error) {
-//     logger.errLogger.info(error)
-// }
-
-// bot.startPolling()
