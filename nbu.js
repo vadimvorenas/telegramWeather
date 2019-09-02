@@ -11,12 +11,11 @@ const connection = mysql.createConnection({
     port: env.databaseSql.port
 });
 
-const coints = {
-    bitcoint: "https://api.coinmarketcap.com/v1/ticker/bitcoin/",
-    bitcoin_cash: "https://api.coinmarketcap.com/v1/ticker/bitcoin-cash/",
-    ethereum: "https://api.coinmarketcap.com/v1/ticker/ethereum/",
-    litecoin: "https://api.coinmarketcap.com/v1/ticker/litecoin/",
-    iota: "https://api.coinmarketcap.com/v1/ticker/iota/"
+const currencies = {
+    pln: "https://bank.gov.ua/NBUStatService/v1/statdirectory/exchange?valcode=pln&json",
+    usd: "https://bank.gov.ua/NBUStatService/v1/statdirectory/exchange?valcode=usd&json",
+    eur: "https://bank.gov.ua/NBUStatService/v1/statdirectory/exchange?valcode=eur&json",
+    rub: "https://bank.gov.ua/NBUStatService/v1/statdirectory/exchange?valcode=rub&json",
 }
 connection.connect(function (err) {
     if (err) {
@@ -24,16 +23,15 @@ connection.connect(function (err) {
     }
     else {
         logger.appLogger.info("Подключение к серверу MySQL успешно установлено");
-        startCripto()
+        startCurrencies()
     }
 })
 
-function startCripto() {
-    cripto(coints['bitcoint'])
-    cripto(coints['bitcoin_cash'])
-    cripto(coints['ethereum'])
-    cripto(coints['litecoin'])
-    cripto(coints['iota'], () => {
+function startCurrencies() {
+    currenciesUrl(currencies['pln'])
+    currenciesUrl(currencies['usd'])
+    currenciesUrl(currencies['eur'])
+    currenciesUrl(currencies['rub'], () => {
         connection.end(function (err) {
             if (err) {
                 logger.errLogger.error("Ошибка: " + err.message);
@@ -43,22 +41,24 @@ function startCripto() {
     })
 }
 
-function cripto(url, callback = () => { }) {
+function currenciesUrl(url, callback = () => { }) {
     https.get(url, (res) => {
         res.setEncoding('utf8')
         res.on('data', function (chunk) {
             let result = JSON.parse(chunk)[0]
             logger.appLogger.info(result)
-            setCoints({
-                name: result.name,
-                price_usd: result.price_usd
+            setCurrencies({
+                name: result.txt,
+                price: result.rate,
+                currency: result.cc,
+                update_date: result.exchangedate
             }, callback)
         })
     })
 }
 
-function setCoints(data, callback) {
-    let query = `INSERT INTO \`${data.name}\` (price_usd) VALUES (\'${data.price_usd}\')`
+function setCurrencies(data, callback) {
+    let query = `INSERT INTO NBU (name, price, currency ,update_date)  VALUES (\'${data.name}\', \'${data.price}\', \'${data.currency}\', \'${data.update_date}\')`
     logger.appLogger.info(query)
 
     connection.query(query,
@@ -69,24 +69,3 @@ function setCoints(data, callback) {
             callback()
         });
 }
-
-
-function databaseStart() {
-    connection.connect(function (err) {
-        if (err) {
-            logger.errLogger.error("Ошибка databaseStart: " + err.message);
-        }
-        else {
-            logger.appLogger.info("Подключение к серверу MySQL успешно установлено");
-        }
-    })
-}
-function databaseEnd() {
-    connection.end(function (err) {
-        if (err) {
-            logger.errLogger.error("Ошибка: " + err.message);
-        }
-        logger.appLogger.info("Подключение закрыто");
-    });
-}
-
