@@ -1,13 +1,13 @@
 const winston = require('winston')
 let date = new Date()
-date = `${date.getMonth()}-${date.getDate()}-${date.getHours()}`
+date = `${date.getMonth()+1}-${date.getDate()}-${date.getHours()}`
 
 module.exports.appLogger = winston.createLogger({
     level: 'info',
     format: winston.format.json(),
     transports: [
         new (winston.transports.File)({
-            filename: "logs/" + 'info' + date + '.log',
+            filename: "logs/" + 'info-' + date + '.log',
             maxSize: '10m'
         })
     ]

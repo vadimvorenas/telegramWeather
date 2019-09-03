@@ -28,17 +28,22 @@ connection.connect(function (err) {
 })
 
 function startCurrencies() {
-    currenciesUrl(currencies['pln'])
-    currenciesUrl(currencies['usd'])
-    currenciesUrl(currencies['eur'])
-    currenciesUrl(currencies['rub'], () => {
-        connection.end(function (err) {
-            if (err) {
-                logger.errLogger.error("Ошибка: " + err.message);
-            }
-            logger.appLogger.info("Подключение закрыто");
-        });
-    })
+    try {
+        currenciesUrl(currencies['pln'],
+            () => currenciesUrl(currencies['usd'],
+                () => currenciesUrl(currencies['eur'], () => {
+                    currenciesUrl(currencies['rub'], () => {
+                        connection.end(function (err) {
+                            if (err) {
+                                logger.errLogger.error("Ошибка: " + err.message);
+                            }
+                            logger.appLogger.info("Подключение закрыто");
+                        });
+                    })
+                })))
+    } catch (e) {
+        logger.errLogger.error("Catch(startCurrencies): " + e);
+    }
 }
 
 function currenciesUrl(url, callback = () => { }) {
