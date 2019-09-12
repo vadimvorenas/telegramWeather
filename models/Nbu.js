@@ -24,8 +24,8 @@ function getInfo(callback) {
         connection.query(query,
             function (err, results, fields) {
                 logger.errLogger.error(err + ' query');
-                logger.appLogger.info(results);
-                logger.appLogger.info(fields);
+                // logger.appLogger.info(results);
+                // logger.appLogger.info(fields);
                 resolve(results)
                 callback()
             });
