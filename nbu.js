@@ -12,11 +12,15 @@ try {
         port: env.databaseSql.port
     });
 
+    let date = new Date()
+    date = formatDate(date)
+    console.log(date)
+
     const currencies = {
-        pln: "https://bank.gov.ua/NBUStatService/v1/statdirectory/exchange?valcode=pln&json",
-        usd: "https://bank.gov.ua/NBUStatService/v1/statdirectory/exchange?valcode=usd&json",
-        eur: "https://bank.gov.ua/NBUStatService/v1/statdirectory/exchange?valcode=eur&json",
-        rub: "https://bank.gov.ua/NBUStatService/v1/statdirectory/exchange?valcode=rub&json",
+        pln: `https://bank.gov.ua/NBUStatService/v1/statdirectory/exchange?valcode=pln&date=${date}&json`,
+        usd: `https://bank.gov.ua/NBUStatService/v1/statdirectory/exchange?valcode=usd&date=${date}&json`,
+        eur: `https://bank.gov.ua/NBUStatService/v1/statdirectory/exchange?valcode=eur&date=${date}&json`,
+        rub: `https://bank.gov.ua/NBUStatService/v1/statdirectory/exchange?valcode=rub&date=${date}&json`,
     }
     connection.connect(function (err) {
         if (err) {
@@ -78,3 +82,17 @@ try {
 } catch (e) {
     console.log(e)
 }
+
+function formatDate(date) {
+
+    var dd = date.getDate();
+    if (dd < 10) dd = '0' + dd;
+  
+    var mm = date.getMonth() + 1;
+    if (mm < 10) mm = '0' + mm;
+  
+    var yy = date.getFullYear();
+    if (yy < 10) yy = '0' + yy;
+  
+    return yy + mm + dd;
+  }
