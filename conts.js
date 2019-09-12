@@ -1,4 +1,4 @@
-const fs = require('fs')
+try {const fs = require('fs')
 const env = JSON.parse(fs.readFileSync('./.env', 'utf8'))
 const logger = require('./logs')
 const https = require('https')
@@ -90,3 +90,6 @@ function databaseEnd() {
     });
 }
 
+} catch (e){
+    console.log(e)
+}
