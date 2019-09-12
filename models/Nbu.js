@@ -17,7 +17,7 @@ module.exports.getNbu = function () {
 }
 
 function getInfo(callback) {
-    let query = `SELECT * FROM NBU;`
+    let query = `SELECT * FROM NBU ORDER BY create_date DESC;`
     logger.appLogger.info(query)
 
     return new Promise(resolve => {

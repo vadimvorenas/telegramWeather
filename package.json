@@ -22,6 +22,7 @@
   },
   "homepage": "https://github.com/vadimvorenas/telegramWeather#readme",
   "dependencies": {
+    "express": "^4.17.1",
     "fs": "0.0.1-security",
     "https": "^1.0.0",
     "mysql2": "^1.7.0",
