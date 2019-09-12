@@ -1,6 +1,6 @@
 const winston = require('winston')
 let date = new Date()
-date = `${date.getMonth()+1}-${date.getDate()}-${date.getHours()}`
+date = `${date.getMonth()+1}-${date.getDate()}}`
 
 module.exports.appLogger = winston.createLogger({
     level: 'info',
