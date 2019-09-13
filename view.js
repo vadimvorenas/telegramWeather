@@ -13,16 +13,17 @@ if (env.status && env.status == 'dev') {
     port = env.prod.port
 }
 
-let nbu = []
-
 app.use(express.static('public'))
 
 app.get('/nbu', function (req, res) {
     // console.log(req.query.nbu)
-    res.send(nbu)
+    f1().then(r => {
+        // console.log(r)
+        res.send(r)
+    }).catch(e => { console.log(e); res.send(e) })
 })
 
-app.get('/', function(req,res){
+app.get('/', function (req, res) {
     res.render('nbu')
 })
 
@@ -31,12 +32,6 @@ async function f1() {
     res = await Nbu.getNbu()
     return res
 }
-f1().then(r => {
-    nbu = r
-    // for (let i = 0; i < 4; i++) {
-    //     nbu.push(r[i])
-    // }
-}).catch(e => { console.log(e) })
 
 app.listen(port, function () {
     console.log(`Running port: ${port}`)

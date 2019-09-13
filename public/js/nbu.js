@@ -26,16 +26,16 @@ function startNbu(ctx) {
         if (!element.create_date) {
           return false
         }
-        if ('PLN' == element.currency) {
+        if ('PLN' == element.currency.toLocaleUpperCase()) {
           pln.push(getCeilTwo(element.price))
           labels.pln.push(getDate(new Date(element.create_date)))
-        } else if ('USD' == element.currency) {
+        } else if ('USD' == element.currency.toLocaleUpperCase()) {
           usd.push(getCeilTwo(element.price))
           labels.usd.push(getDate(new Date(element.create_date)))
-        } else if ('EUR' == element.currency) {
+        } else if ('EUR' == element.currency.toLocaleUpperCase()) {
           eur.push(getCeilTwo(element.price))
           labels.eur.push(getDate(new Date(element.create_date)))
-        } else if ('RUB' == element.currency) {
+        } else if ('RUB' == element.currency.toLocaleUpperCase()) {
           rub.push(getCeilTwo(element.price))
           labels.rub.push(getDate(new Date(element.create_date)))
         }
@@ -97,11 +97,11 @@ function startNbu(ctx) {
         data: {
           labels: labels.eur,
           datasets: [
-          {
-            label: 'EUR',
-            borderColor: 'rgb(255, 189, 64)',
-            data: eur
-          }
+            {
+              label: 'EUR',
+              borderColor: 'rgb(255, 189, 64)',
+              data: eur
+            }
           ]
         },
         options: {
@@ -122,11 +122,11 @@ function startNbu(ctx) {
         data: {
           labels: labels.usd,
           datasets: [
-          {
-            label: 'USD',
-            borderColor: 'rgb(255, 109, 64)',
-            data: usd
-          }
+            {
+              label: 'USD',
+              borderColor: 'rgb(255, 109, 64)',
+              data: usd
+            }
           ]
         },
         options: {

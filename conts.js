@@ -1,15 +1,9 @@
-try {const fs = require('fs')
+const fs = require('fs')
 const env = JSON.parse(fs.readFileSync('./.env', 'utf8'))
 const logger = require('./logs')
 const https = require('https')
 const mysql = require('mysql2')
-const connection = mysql.createConnection({
-    host: env.databaseSql.host,
-    user: env.databaseSql.user,
-    database: "bot_info",
-    password: env.databaseSql.password,
-    port: env.databaseSql.port
-});
+let connection = ''
 
 const coints = {
     bitcoint: "https://api.coinmarketcap.com/v1/ticker/bitcoin/",
@@ -18,17 +12,11 @@ const coints = {
     litecoin: "https://api.coinmarketcap.com/v1/ticker/litecoin/",
     iota: "https://api.coinmarketcap.com/v1/ticker/iota/"
 }
-connection.connect(function (err) {
-    if (err) {
-        logger.errLogger.error("Ошибка databaseStart: " + err.message);
-    }
-    else {
-        logger.appLogger.info("Подключение к серверу MySQL успешно установлено");
-        startCripto()
-    }
-})
+
+startCripto()
 
 function startCripto() {
+    createConnection()
     cripto(coints['bitcoint'])
     cripto(coints['bitcoin_cash'])
     cripto(coints['ethereum'])
@@ -40,6 +28,7 @@ function startCripto() {
             }
             logger.appLogger.info("Подключение закрыто");
         });
+        connection = ''
     })
 }
 
@@ -90,6 +79,12 @@ function databaseEnd() {
     });
 }
 
-} catch (e){
-    console.log(e)
+function createConnection() {
+    connection = mysql.createConnection({
+        host: env.databaseSql.host,
+        user: env.databaseSql.user,
+        database: "bot_info",
+        password: env.databaseSql.password,
+        port: env.databaseSql.port
+    });
 }
