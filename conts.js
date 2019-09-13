@@ -15,12 +15,13 @@ const coints = {
 
 try {
     startCripto()
+    createConnection()
+    databaseStart()
 } catch (e) {
     logger.errLogger.error("startCripto  " + e);
 }
 
 function startCripto() {
-    createConnection()
     cripto(coints['bitcoint'])
     cripto(coints['bitcoin_cash'])
     cripto(coints['ethereum'])
