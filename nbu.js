@@ -63,6 +63,8 @@ try {
                     currency: result.cc,
                     update_date: result.exchangedate
                 }, callback)
+            }).on('error', function(err){
+                logger.errLogger.error("currenciesUrl (on.error): " + err);
             })
         })
     }
