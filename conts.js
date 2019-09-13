@@ -13,7 +13,11 @@ const coints = {
     iota: "https://api.coinmarketcap.com/v1/ticker/iota/"
 }
 
-startCripto()
+try {
+    startCripto()
+} catch (e) {
+    logger.errLogger.error("startCripto  " + e);
+}
 
 function startCripto() {
     createConnection()
