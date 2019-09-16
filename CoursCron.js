@@ -15,6 +15,25 @@ const coints = {
     iota: "https://api.coinmarketcap.com/v1/ticker/iota/"
 }
 
+function cronStart() {
+    let date = new Date()
+    console.log(date)
+    try {
+        createConnection()
+        databaseStart()
+        let promise = new Promise((resolve, rej) => {
+            resolve(nbu(connection, date))
+        })
+        promise.then((res) => {
+            startCripto()
+        })
+            .catch(e => { console.log(e) })
+    } catch (e) {
+        logger.errLogger.error("startCripto  " + e);
+    }
+}
+
+cronStart()
 cron.schedule('0 */4 * * *', () => {
     let date = new Date()
     console.log(date)
