@@ -3,6 +3,8 @@ const env = JSON.parse(fs.readFileSync('./.env', 'utf8'))
 const logger = require('./logs')
 const https = require('https')
 const mysql = require('mysql2')
+const cron = require('node-cron')
+const nbu = require('./models/NbuCron')
 let connection = ''
 
 const coints = {
@@ -13,13 +15,24 @@ const coints = {
     iota: "https://api.coinmarketcap.com/v1/ticker/iota/"
 }
 
-try {
-    startCripto()
-    createConnection()
-    databaseStart()
-} catch (e) {
-    logger.errLogger.error("startCripto  " + e);
-}
+cron.schedule('0 */4 * * *', () => {
+    let date = new Date()
+    console.log(date)
+    try {
+        createConnection()
+        databaseStart()
+        let promise = new Promise((resolve, rej) => {
+            resolve(nbu(connection, date))
+        })
+        promise.then((res) => {
+            startCripto()
+        })
+            .catch(e => { console.log(e) })
+    } catch (e) {
+        logger.errLogger.error("startCripto  " + e);
+    }
+})
+
 
 function startCripto() {
     cripto(coints['bitcoint'])
@@ -27,13 +40,7 @@ function startCripto() {
     cripto(coints['ethereum'])
     cripto(coints['litecoin'])
     cripto(coints['iota'], () => {
-        connection.end(function (err) {
-            if (err) {
-                logger.errLogger.error("Ошибка: " + err.message);
-            }
-            logger.appLogger.info("Подключение закрыто");
-        });
-        connection = ''
+        databaseEnd()
     })
 }
 
@@ -47,6 +54,9 @@ function cripto(url, callback = () => { }) {
                 name: result.name,
                 price_usd: result.price_usd
             }, callback)
+        })
+        res.on('error', function (e) {
+            console.log(e)
         })
     })
 }

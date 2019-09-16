@@ -4,6 +4,7 @@ const env = JSON.parse(fs.readFileSync('./.env', 'utf8'))
 const logger = require('./logs')
 const https = require('https')
 const mysql = require('mysql2')
+const cron = require('node-cron')
 let connection = ''
 
 let date = new Date()
@@ -16,16 +17,24 @@ const currencies = {
     eur: `https://bank.gov.ua/NBUStatService/v1/statdirectory/exchange?valcode=eur&date=${date}&json`,
     rub: `https://bank.gov.ua/NBUStatService/v1/statdirectory/exchange?valcode=rub&date=${date}&json`,
 }
-createConnection()
-connection.connect(function (err) {
-    if (err) {
-        logger.errLogger.error("Ошибка databaseStart: " + err.message);
-    }
-    else {
-        logger.appLogger.info("Подключение к серверу MySQL успешно установлено");
-        startCurrencies()
+cron.schedule('*/2 * * * *', () => {
+    console.log('cron')
+    try {
+        createConnection()
+        connection.connect(function (err) {
+            if (err) {
+                logger.errLogger.error("Ошибка databaseStart: " + err.message);
+            }
+            else {
+                logger.appLogger.info("Подключение к серверу MySQL успешно установлено");
+                startCurrencies()
+            }
+        })
+    } catch (e) {
+        console.log(e)
     }
 })
+
 
 function startCurrencies() {
     try {
@@ -84,18 +93,4 @@ function createConnection() {
         password: env.databaseSql.password,
         port: env.databaseSql.port
     });
-}
-
-function formatDate(date) {
-
-    var dd = date.getDate();
-    if (dd < 10) dd = '0' + dd;
-
-    var mm = date.getMonth() + 1;
-    if (mm < 10) mm = '0' + mm;
-
-    var yy = date.getFullYear();
-    if (yy < 10) yy = '0' + yy;
-
-    return yy + mm + dd;
 }
