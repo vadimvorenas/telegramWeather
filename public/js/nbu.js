@@ -151,47 +151,7 @@ function getCeilTwo(ceil) {
 
 function getDate(date) {
   if (date instanceof Date) {
-    return date.getFullYear() + '.' + (date.getMonth() + 1) + '.' + date.getDate()
+    return date.getFullYear() + '.' + (date.getMonth() + 1) + '.' + date.getDate() + ':' + date.getHours()
   }
   return false
 }
-
-// function f1() {
-//   var chart = new Chart(ctx, {
-//     // The type of chart we want to create
-//     type: 'line',
-
-//     // The data for our dataset
-//     data: {
-//       labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 1, 2, 3, 4],
-//       datasets: [{
-//         label: 'My First dataset',
-//         // backgroundColor: 'rgb(255, 99, 132)',
-//         borderColor: 'rgb(255, 99, 132)',
-//         data: [0, 10, 5, 2, 20, 30, 45, 50, 55]
-//       },
-//       {
-//         label: 'My two tho tho',
-//         // backgroundColor: 'rgb(255, 159, 64)',
-//         borderColor: 'rgb(255, 159, 64)',
-//         data: [33, 54, 32, 64, 65, 76, 43, 23, 54, 64, 12]
-//       }
-//       ]
-//     },
-
-//     // Configuration options go here
-//     options: {
-//       responsive: false,
-//       scales: {
-//         yAxes: [{
-//           ticks: {
-//             // Include a dollar sign in the ticks
-//             callback: function (value, index, values) {
-//               return '$' + value;
-//             }
-//           }
-//         }]
-//       }
-//     }
-//   });
-// }
