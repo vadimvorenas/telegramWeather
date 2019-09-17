@@ -151,7 +151,7 @@ function getCeilTwo(ceil) {
 
 function getDate(date) {
   if (date instanceof Date) {
-    return date.getFullYear() + '.' + (date.getMonth() + 1) + '.' + date.getDay()
+    return date.getFullYear() + '.' + (date.getMonth() + 1) + '.' + date.getDate()
   }
   return false
 }
