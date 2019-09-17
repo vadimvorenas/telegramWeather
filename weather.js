@@ -19,41 +19,47 @@ let url = `http://api.openweathermap.org/data/2.5/weather?q=${city}&appid=f025da
 
 let lviv = `http://api.openweathermap.org/data/2.5/weather?q=Lviv,%20UA&appid=f025da743193e6d3a8af87677975d1e9&units=metric&lang=ru`
 
-let promise = new Promise(function (resolve, reject) {
-    resolve(startWeather(url, env.id.pogoda))
-})
-promise.then((resolve) => {
-    startWeather(lviv, env.id.Lviv)
-})
+databaseStart()
+startWeather(url, env.id.pogoda)
+    .then((resolve) => {
+        return startWeather(lviv, env.id.Lviv)
+    })
+    .then(resolve => {
+        return databaseEnd()
+    })
 
 function startWeather(weather_url, id) {
-    http.get(weather_url, (res) => {
-        res.setEncoding('utf8')
-        res.on('data', function (chunk) {
-            let result = JSON.parse(chunk)
-            let day = dayOfWeekRus()
-            let sun = (timestamp) => { let date = new Date(timestamp); return `${date.getHours()}:${date.getMinutes()}` }
-            let msg = `В ${result.name} ${result.main.temp}°C\n${result.wind.speed}м/с, влажность ${result.main.humidity}%\nСейчас ${result['weather']['0']['description']} (${result.clouds.all}%)\nВосход: ${sun(result.sys.sunrise * 1000)} Закат: ${sun(result.sys.sunset * 1000)}`
-            logger.appLogger.info(result)
-            logger.appLogger.info(msg)
-            bot.telegram.sendMessage(id, msg)
-            databaseStart()
-            setWeather({
-                city: result.name,
-                description: result['weather']['0']['description'],
-                temp: result.main.temp,
-                day: day ? day : null,
-                speed: result.wind.speed,
-                pressure: result.main.pressure,
-                humidity: result.main.humidity,
-                temp_min: result.main.temp_min,
-                temp_max: result.main.temp_max,
-                wind_deg: result.wind.deg,
-                clouds_percent: result.clouds.all,
-                sunrise: result.sys.sunrise,
-                sunset: result.sys.sunset,
+    console.log(weather_url)
+    return new Promise((resolve, rej) => {
+        http.get(weather_url, (res) => {
+            res.setEncoding('utf8')
+            res.on('data', function (chunk) {
+                let result = JSON.parse(chunk)
+                let day = dayOfWeekRus()
+                let sun = (timestamp) => { let date = new Date(timestamp); return `${date.getHours()}:${date.getMinutes()}` }
+                let msg = `В ${result.name} ${result.main.temp}°C\n${result.wind.speed}м/с, влажность ${result.main.humidity}%\nСейчас ${result['weather']['0']['description']} (${result.clouds.all}%)\nВосход: ${sun(result.sys.sunrise * 1000)} Закат: ${sun(result.sys.sunset * 1000)}`
+                logger.appLogger.info(result)
+                logger.appLogger.info(msg)
+                bot.telegram.sendMessage(id, msg)
+                resolve(setWeather({
+                    city: result.name,
+                    description: result['weather']['0']['description'],
+                    temp: result.main.temp,
+                    day: day ? day : null,
+                    speed: result.wind.speed,
+                    pressure: result.main.pressure,
+                    humidity: result.main.humidity,
+                    temp_min: result.main.temp_min,
+                    temp_max: result.main.temp_max,
+                    wind_deg: result.wind.deg,
+                    clouds_percent: result.clouds.all,
+                    sunrise: result.sys.sunrise,
+                    sunset: result.sys.sunset,
+                }))
             })
-            databaseEnd()
+            res.on('error', function (err) {
+                logger.errLogger.error("startWeather: " + err);
+            })
         })
     })
 }
@@ -84,8 +90,10 @@ function databaseEnd() {
     connection.end(function (err) {
         if (err) {
             logger.errLogger.error("Ошибка: " + err.message);
+            return false
         }
         logger.appLogger.info("Подключение закрыто");
+        return true
     });
 }
 
