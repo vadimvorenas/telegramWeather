@@ -6,7 +6,7 @@ const logger = require('../logs')
 // const https = require('https')
 const http = require('http')
 const mysql = require('mysql2')
-const connection = mysql.createConnection({
+let connection = mysql.createConnection({
     host: env.databaseSql.host,
     user: env.databaseSql.user,
     database: "bot_info",
@@ -18,6 +18,7 @@ let city = "Zaporizhzhya,%20UA"
 let url = `http://api.openweathermap.org/data/2.5/weather?q=${city}&appid=f025da743193e6d3a8af87677975d1e9&units=metric&lang=ru`
 
 let lviv = `http://api.openweathermap.org/data/2.5/weather?q=Lviv,%20UA&appid=f025da743193e6d3a8af87677975d1e9&units=metric&lang=ru`
+databaseStart()
 
 module.exports.startWeather = function (weather_url, id) {
     let text = 'fail'
@@ -33,7 +34,6 @@ module.exports.startWeather = function (weather_url, id) {
                 logger.appLogger.info(msg)
                 // bot.telegram.sendMessage(id, msg)
                 text = msg
-                databaseStart()
                 setWeather({
                     city: result.name,
                     description: result['weather']['0']['description'],
@@ -49,7 +49,7 @@ module.exports.startWeather = function (weather_url, id) {
                     sunrise: result.sys.sunrise,
                     sunset: result.sys.sunset,
                 })
-                databaseEnd()
+                // databaseEnd()
                 resolve(text)
             })
         })
@@ -57,14 +57,23 @@ module.exports.startWeather = function (weather_url, id) {
 }
 
 module.exports.getThisDayWeather = function (day_start, day_end, city) {
-    let query = `SELECT * FROM weather WHERE create_date >= '${day_start}' AND create_date <= '${day_end}' AND city = '${city}'`
+    let query = `SELECT * FROM weather WHERE create_date >= '${day_start}' AND create_date < '${day_end}' AND city = '${city}'`
     logger.appLogger.info(query)
     return new Promise(resolve => {
-        connection.query(query,
-            function (err, results, fields) {
-                logger.errLogger.error(err);
-                resolve(results)
-            });
+        // databaseStart()
+        let db_end = new Promise(db_end_res => {
+            connection.query(query,
+                function (err, results, fields) {
+                    logger.errLogger.error(err);
+                    db_end_res(results)
+                });
+        })
+        db_end.then(val => {
+            // databaseEnd()
+            resolve(val)
+            return val
+        })
+
     })
 
 }
@@ -86,6 +95,9 @@ module.exports.getStringDate = function (date) {
 module.exports.getAvgTemp = function (arr) {
     let count = 0
     let i = 0
+    if (!arr && !Array.isArray(arr)) {
+        return false
+    }
     arr.forEach(element => {
         count += element.temp
         i++
@@ -96,7 +108,7 @@ module.exports.getAvgTemp = function (arr) {
 function databaseStart() {
     connection.connect(function (err) {
         if (err) {
-            logger.errLogger.error("Ошибка: " + err.message);
+            logger.errLogger.error("Ошибка (databaseStart): " + err.message);
         }
         else {
             logger.appLogger.info("Подключение к серверу MySQL успешно установлено");
@@ -118,7 +130,7 @@ function setWeather(data) {
 function databaseEnd() {
     connection.end(function (err) {
         if (err) {
-            logger.errLogger.error("Ошибка: " + err.message);
+            logger.errLogger.error("Ошибка (databaseEnd): " + err.message);
         }
         logger.appLogger.info("Подключение закрыто");
     });

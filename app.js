@@ -15,7 +15,6 @@ bot.hears('Hi', ctx => {
     return ctx.reply('Hey!')
 })
 bot.command('refresh', (ctx) => {
-    let startWeather = require('./models/Weater')
     let city = "Zaporizhzhya,%20UA"
     if (ctx.from.id == env.id.Lviv) {
         city = "Lviv,%20UA"
@@ -23,14 +22,13 @@ bot.command('refresh', (ctx) => {
     let url = `http://api.openweathermap.org/data/2.5/weather?q=${city}&appid=f025da743193e6d3a8af87677975d1e9&units=metric&lang=ru`
 
     async function f1() {
-        let text = await startWeather(url, ctx.from.id)
+        let text = await Weather.startWeather(url, ctx.from.id)
         ctx.reply(text)
     }
     f1()
 })
 
 bot.command('refresh@NekitVadBot', (ctx) => {
-    let startWeather = Weather.startWeather
     let city = "Zaporizhzhya,%20UA"
     if (ctx.chat.id == env.id.Lviv) {
         city = "Lviv,%20UA"
@@ -38,13 +36,13 @@ bot.command('refresh@NekitVadBot', (ctx) => {
     let url = `http://api.openweathermap.org/data/2.5/weather?q=${city}&appid=f025da743193e6d3a8af87677975d1e9&units=metric&lang=ru`
 
     async function f1() {
-        let text = await startWeather(url, ctx.from.id)
+        let text = await Weather.startWeather(url, ctx.from.id)
         ctx.reply(text)
     }
     f1()
 })
 
-bot.command('averageTemp@NekitVadBot', (ctx) => {
+bot.command('averagetemp@NekitVadBot', (ctx) => {
     let getThisDayWeather = Weather.getThisDayWeather
     let city = "Zaporizhzhya"
     let date_start = Weather.getStringDate(new Date())
@@ -57,7 +55,31 @@ bot.command('averageTemp@NekitVadBot', (ctx) => {
         try {
             let weather = await getThisDayWeather(date_start, date_end, city)
             let vag_temp = Weather.getAvgTemp(weather)
-            let text = `Средняя температура сегодня - ${vag_temp}°C`
+            let text = `Средняя температура сегодня - ${parseFloat(vag_temp.toFixed(2))}°C`
+            logger.appLogger.info(text)
+
+            ctx.reply(text)
+        } catch (e) {
+            console.log(e)
+        }
+    }
+    f1()
+})
+
+bot.command('averagetemp', (ctx) => {
+    let getThisDayWeather = Weather.getThisDayWeather
+    let city = "Zaporizhzhya"
+    let date_start = Weather.getStringDate(new Date())
+    let date_end = Weather.getStringDate(new Date(Date.now() + (1000 * 3600 * 24)))
+    if (ctx.chat.id == env.id.Lviv) {
+        city = "Lviv"
+    }
+
+    async function f1() {
+        try {
+            let weather = await getThisDayWeather(date_start, date_end, city)
+            let vag_temp = Weather.getAvgTemp(weather)
+            let text = `Средняя температура сегодня - ${parseFloat(vag_temp.toFixed(2))}°C`
             logger.appLogger.info(text)
 
             ctx.reply(text)
