@@ -19,14 +19,7 @@ let url = `http://api.openweathermap.org/data/2.5/weather?q=${city}&appid=f025da
 
 let lviv = `http://api.openweathermap.org/data/2.5/weather?q=Lviv,%20UA&appid=f025da743193e6d3a8af87677975d1e9&units=metric&lang=ru`
 
-// let promise = new Promise(function (resolve, reject) {
-//     resolve(startWeather(url, env.id.pogoda))
-// })
-// promise.then((resolve) => {
-//     startWeather(lviv, env.id.Lviv)
-// })
-
-module.exports = function (weather_url, id) {
+module.exports.startWeather = function (weather_url, id) {
     let text = 'fail'
     return new Promise(resolve => {
         http.get(weather_url, (res) => {
@@ -61,6 +54,43 @@ module.exports = function (weather_url, id) {
             })
         })
     })
+}
+
+module.exports.getThisDayWeather = function (day_start, day_end, city) {
+    let query = `SELECT * FROM weather WHERE create_date >= '${day_start}' AND create_date <= '${day_end}' AND city = '${city}'`
+    logger.appLogger.info(query)
+    return new Promise(resolve => {
+        connection.query(query,
+            function (err, results, fields) {
+                logger.errLogger.error(err);
+                resolve(results)
+            });
+    })
+
+}
+
+module.exports.getStringDate = function (date) {
+    let month = addZero(date.getMonth() + 1)
+    let hours = addZero(date.getHours())
+    let minute = addZero(date.getMinutes())
+    let seconds = addZero(date.getSeconds())
+    function addZero(num) {
+        if (num < 10) {
+            num = `0${num}`
+        }
+        return num
+    }
+    return `${date.getFullYear()}-${month}-${date.getDate()} 00:00:00`
+}
+
+module.exports.getAvgTemp = function (arr) {
+    let count = 0
+    let i = 0
+    arr.forEach(element => {
+        count += element.temp
+        i++
+    });
+    return count / i
 }
 
 function databaseStart() {
