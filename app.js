@@ -47,8 +47,8 @@ function refresh(ctx) {
 function averageTemp(ctx) {
     let getThisDayWeather = Weather.getThisDayWeather
     let city = "Zaporizhzhya"
-    let date_start = Weather.getStringDate(new Date())
-    let date_end = Weather.getStringDate(new Date(Date.now() + (1000 * 3600 * 24)))
+    let date_start = Weather.getStringDate(new Date(Date.now() - (1000 * 3600 * 24)))
+    let date_end = Weather.getStringDate(new Date())
     if (ctx.chat.id == env.id.Lviv) {
         city = "Lviv"
     }
@@ -57,7 +57,7 @@ function averageTemp(ctx) {
         try {
             let weather = await getThisDayWeather(date_start, date_end, city)
             let vag_temp = Weather.getAvgTemp(weather)
-            let text = `Средняя температура сегодня - ${parseFloat(vag_temp.toFixed(2))}°C`
+            let text = `Средняя температура за сутки: ${parseFloat(vag_temp.toFixed(2))}°C`
             logger.appLogger.info(text)
 
             ctx.reply(text)
