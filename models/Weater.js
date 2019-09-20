@@ -57,7 +57,7 @@ module.exports.startWeather = function (weather_url, id) {
 }
 
 module.exports.getThisDayWeather = function (day_start, day_end, city) {
-    let query = `SELECT * FROM weather WHERE create_date >= '${day_start}' AND create_date < '${day_end}' AND city = '${city}'`
+    let query = `SELECT * FROM weather WHERE create_date >= '${day_start}' AND create_date <= '${day_end}' AND city = '${city}'`
     logger.appLogger.info(query)
     return new Promise(resolve => {
         // databaseStart()
@@ -89,7 +89,7 @@ module.exports.getStringDate = function (date) {
         }
         return num
     }
-    return `${date.getFullYear()}-${month}-${date.getDate()} 00:00:00`
+    return `${date.getFullYear()}-${month}-${date.getDate()} ${hours}:${minute}:${seconds}`
 }
 
 module.exports.getAvgTemp = function (arr) {
