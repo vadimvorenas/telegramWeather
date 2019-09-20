@@ -89,7 +89,7 @@ module.exports.getStringDate = function (date) {
         }
         return num
     }
-    return `${date.getFullYear()}-${month}-${date.getDate()} 00:00:00`
+    return `${date.getFullYear()}-${month}-${date.getDate()} ${hours}:${minute}:${seconds}`
 }
 
 module.exports.getAvgTemp = function (arr) {
