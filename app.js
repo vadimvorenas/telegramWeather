@@ -56,7 +56,7 @@ function averageTemp(ctx) {
     async function f1() {
         try {
             let weather = await getThisDayWeather(date_start, date_end, city)
-            let vag_temp = Weather.getAvgTemp(weather)
+            let vag_temp = Number(Weather.getAvgTemp(weather))
             let text = `Средняя температура за сутки: ${parseFloat(vag_temp.toFixed(2))}°C`
             logger.appLogger.info(text)
 
