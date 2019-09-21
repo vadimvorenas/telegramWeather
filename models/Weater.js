@@ -34,6 +34,7 @@ module.exports.startWeather = function (weather_url, id) {
                 logger.appLogger.info(msg)
                 // bot.telegram.sendMessage(id, msg)
                 text = msg
+                databaseStart()
                 setWeather({
                     city: result.name,
                     description: result['weather']['0']['description'],
@@ -61,6 +62,7 @@ module.exports.getThisDayWeather = function (day_start, day_end, city) {
     logger.appLogger.info(query)
     return new Promise(resolve => {
         // databaseStart()
+        databaseStart()
         let db_end = new Promise(db_end_res => {
             connection.query(query,
                 function (err, results, fields) {
@@ -95,6 +97,7 @@ module.exports.getStringDate = function (date) {
 module.exports.getAvgTemp = function (arr) {
     let count = 0
     let i = 0
+    console.log(arr)
     if (!arr && !Array.isArray(arr)) {
         return false
     }
