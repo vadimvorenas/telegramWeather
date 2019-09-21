@@ -22,6 +22,21 @@ databaseStart()
 
 module.exports.startWeather = function (weather_url, id) {
     let text = 'fail'
+    let db = mysql.createConnection({
+        host: env.databaseSql.host,
+        user: env.databaseSql.user,
+        database: "bot_info",
+        password: env.databaseSql.password,
+        port: env.databaseSql.port
+    });
+    db.connect(function (err) {
+        if (err) {
+            logger.errLogger.error("Ошибка (databaseStart): " + err.message);
+        }
+        else {
+            logger.appLogger.info("Подключение к серверу MySQL успешно установлено");
+        }
+    })
     return new Promise(resolve => {
         http.get(weather_url, (res) => {
             res.setEncoding('utf8')
@@ -34,8 +49,7 @@ module.exports.startWeather = function (weather_url, id) {
                 logger.appLogger.info(msg)
                 // bot.telegram.sendMessage(id, msg)
                 text = msg
-                databaseStart()
-                setWeather({
+                let temp = setWeather({
                     city: result.name,
                     description: result['weather']['0']['description'],
                     temp: result.main.temp,
@@ -49,8 +63,13 @@ module.exports.startWeather = function (weather_url, id) {
                     clouds_percent: result.clouds.all,
                     sunrise: result.sys.sunrise,
                     sunset: result.sys.sunset,
-                })
-                // databaseEnd()
+                }, db)
+                temp = db.end(function (err) {
+                    if (err) {
+                        logger.errLogger.error("Ошибка (databaseEnd): " + err.message);
+                    }
+                    logger.appLogger.info("Подключение закрыто");
+                });
                 resolve(text)
             })
         })
@@ -59,19 +78,37 @@ module.exports.startWeather = function (weather_url, id) {
 
 module.exports.getThisDayWeather = function (day_start, day_end, city) {
     let query = `SELECT * FROM weather WHERE create_date >= '${day_start}' AND create_date <= '${day_end}' AND city = '${city}'`
+    let db = mysql.createConnection({
+        host: env.databaseSql.host,
+        user: env.databaseSql.user,
+        database: "bot_info",
+        password: env.databaseSql.password,
+        port: env.databaseSql.port
+    });
+    db.connect(function (err) {
+        if (err) {
+            logger.errLogger.error("Ошибка (databaseStart): " + err.message);
+        }
+        else {
+            logger.appLogger.info("Подключение к серверу MySQL успешно установлено");
+        }
+    })
     logger.appLogger.info(query)
     return new Promise(resolve => {
-        // databaseStart()
-        databaseStart()
         let db_end = new Promise(db_end_res => {
-            connection.query(query,
+            db.query(query,
                 function (err, results, fields) {
                     logger.errLogger.error(err);
                     db_end_res(results)
                 });
         })
         db_end.then(val => {
-            // databaseEnd()
+            temp = db.end(function (err) {
+                if (err) {
+                    logger.errLogger.error("Ошибка (databaseEnd): " + err.message);
+                }
+                logger.appLogger.info("Подключение закрыто");
+            });
             resolve(val)
             return val
         })
@@ -119,7 +156,7 @@ function databaseStart() {
     })
 }
 
-function setWeather(data) {
+function setWeather(data, connection) {
     let query = `INSERT INTO weather (city, description, temp, dow, wind_speed, pressure, humidity, temp_min, temp_max, wind_deg, clouds_percent, sunrise, sunset) VALUES (\'${data.city}\', \'${data.description}\', \'${data.temp}\', \'${data.day}\', \'${data.speed}\', \'${data.pressure}\', \'${data.humidity}\', \'${data.temp_min}\', \'${data.temp_max}\', \'${data.wind_deg}\', \'${data.clouds_percent}\', \'${data.sunrise}\', \'${data.sunset}\')`
     logger.appLogger.info(query)
     connection.query(query,
