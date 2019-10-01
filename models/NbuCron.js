@@ -96,5 +96,5 @@ function formatDate(date) {
     var yy = date.getFullYear();
     if (yy < 10) yy = '0' + yy;
 
-    return yy + mm + dd;
+    return `${yy}${mm}${dd}`;
 }
