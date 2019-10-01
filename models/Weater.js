@@ -134,7 +134,6 @@ module.exports.getStringDate = function (date) {
 module.exports.getAvgTemp = function (arr) {
     let count = 0
     let i = 0
-    console.log(arr)
     if (!arr && !Array.isArray(arr)) {
         return false
     }

@@ -6,6 +6,7 @@ const logger = require('./logs')
 const https = require('https')
 const http = require('http')
 const mysql = require('mysql2')
+const cron = require('node-cron')
 const connection = mysql.createConnection({
     host: env.databaseSql.host,
     user: env.databaseSql.user,
@@ -19,17 +20,63 @@ let url = `http://api.openweathermap.org/data/2.5/weather?q=${city}&appid=f025da
 
 let lviv = `http://api.openweathermap.org/data/2.5/weather?q=Lviv,%20UA&appid=f025da743193e6d3a8af87677975d1e9&units=metric&lang=ru`
 
-databaseStart()
-startWeather(url, env.id.pogoda)
-    .then((resolve) => {
-        return startWeather(lviv, env.id.Lviv)
+startScriptWeather()
+cron.schedule('0 */2 * * *', () => {
+    startScriptWeather()
+})
+
+cron.schedule('0 0 * * *', () => {
+    avg24HoursWeather()
+})
+
+function startScriptWeather() {
+    databaseStart()
+    startWeather(url, env.id.pogoda)
+        .then((resolve) => {
+            return startWeather(lviv, env.id.Lviv)
+        })
+        .then(resolve => {
+            return databaseEnd()
+        })
+}
+
+function avg24HoursWeather() {
+    let weather = require('./models/Weater')
+    let connection_avg = mysql.createConnection({
+        host: env.databaseSql.host,
+        user: env.databaseSql.user,
+        database: "bot_info",
+        password: env.databaseSql.password,
+        port: env.databaseSql.port
+    });
+    let city = "Zaporizhzhya"
+    let date_start = weather.getStringDate(new Date(Date.now() - (1000 * 3600 * 24)))
+    let date_end = weather.getStringDate(new Date())
+    connection_avg.connect(function (err) {
+        if (err) {
+            logger.errLogger.error("Ошибка: " + err.message);
+        }
+        else {
+            logger.appLogger.info("Подключение к серверу MySQL успешно установлено");
+        }
     })
-    .then(resolve => {
-        return databaseEnd()
+    let promise = new Promise(function (resolve, rej) {
+        resolve(weather.getThisDayWeather(date_start, date_end, city))
     })
+    promise.then(res => {
+        let vag_temp = weather.getAvgTemp(res)
+        let text = `Средняя температура за сутки: ${parseFloat(Number(vag_temp).toFixed(2))}°C`
+        logger.appLogger.info(`vag_temp ${vag_temp}`)
+        logger.appLogger.info(`text ${text}`)
+        try {
+            bot.telegram.sendMessage(env.id.pogoda, text)
+        } catch (error) {
+            logger.errLogger.info(error)
+        }
+    }).catch(err => { logger.errLogger.info(err) })
+}
 
 function startWeather(weather_url, id) {
-    console.log(weather_url)
     return new Promise((resolve, rej) => {
         http.get(weather_url, (res) => {
             res.setEncoding('utf8')
