@@ -138,7 +138,7 @@ module.exports.getAvgTemp = function (arr) {
         return false
     }
     arr.forEach(element => {
-        count += element.temp
+        count += parseFloat(element.temp)
         i++
     });
     return count / i
