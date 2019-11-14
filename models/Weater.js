@@ -138,10 +138,17 @@ module.exports.getAvgTemp = function (arr) {
         return false
     }
     arr.forEach(element => {
-        count += parseFloat(element.temp)
-        i++
+        if (parseFloat(element) != NaN) {
+            count += parseFloat(element.temp)
+            i++
+        }
     });
-    return count / i
+    console.log(count, i)
+    if (i > 0) {
+        return count / i
+    } else {
+        return count
+    }
 }
 
 function databaseStart() {

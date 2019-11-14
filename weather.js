@@ -30,13 +30,12 @@ cron.schedule('0 0 * * *', () => {
 })
 
 function startScriptWeather() {
-    databaseStart()
     startWeather(url, env.id.pogoda)
         .then((resolve) => {
             return startWeather(lviv, env.id.Lviv)
         })
         .then(resolve => {
-            return databaseEnd()
+            return
         })
 }
 
@@ -123,11 +122,18 @@ function databaseStart() {
 }
 
 function setWeather(data) {
+    let connection = mysql.createConnection({
+        host: env.databaseSql.host,
+        user: env.databaseSql.user,
+        database: "bot_info",
+        password: env.databaseSql.password,
+        port: env.databaseSql.port
+    });
     let query = `INSERT INTO weather (city, description, temp, dow, wind_speed, pressure, humidity, temp_min, temp_max, wind_deg, clouds_percent, sunrise, sunset) VALUES (\'${data.city}\', \'${data.description}\', \'${data.temp}\', \'${data.day}\', \'${data.speed}\', \'${data.pressure}\', \'${data.humidity}\', \'${data.temp_min}\', \'${data.temp_max}\', \'${data.wind_deg}\', \'${data.clouds_percent}\', \'${data.sunrise}\', \'${data.sunset}\')`
     logger.appLogger.info(query)
     connection.query(query,
         function (err, results, fields) {
-            logger.errLogger.error(err);
+            logger.errLogger.error('setWeather - Erorr' + err);
             logger.appLogger.info(results);
             logger.appLogger.info(fields);
         });
