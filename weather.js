@@ -21,7 +21,7 @@ let url = `http://api.openweathermap.org/data/2.5/weather?q=${city}&appid=f025da
 let lviv = `http://api.openweathermap.org/data/2.5/weather?q=Lviv,%20UA&appid=f025da743193e6d3a8af87677975d1e9&units=metric&lang=ru`
 
 startScriptWeather()
-cron.schedule('0 */2 * * *', () => {
+cron.schedule('*/30 * * * *', () => {
     startScriptWeather()
 })
 
@@ -87,7 +87,14 @@ function startWeather(weather_url, id) {
                 logger.appLogger.info(result)
                 logger.appLogger.info(msg)
                 bot.telegram.sendMessage(id, msg)
-                resolve(setWeather({
+                let connection_set = mysql.createConnection({
+                    host: env.databaseSql.host,
+                    user: env.databaseSql.user,
+                    database: "bot_info",
+                    password: env.databaseSql.password,
+                    port: env.databaseSql.port
+                });
+                let temp = setWeather({
                     city: result.name,
                     description: result['weather']['0']['description'],
                     temp: result.main.temp,
@@ -101,7 +108,14 @@ function startWeather(weather_url, id) {
                     clouds_percent: result.clouds.all,
                     sunrise: result.sys.sunrise,
                     sunset: result.sys.sunset,
-                }))
+                }, connection_set)
+                temp = connection_set.end(function (err) {
+                    if (err) {
+                        logger.errLogger.error("Ошибка (databaseEnd): " + err.message);
+                    }
+                    logger.appLogger.info("Подключение закрыто");
+                });
+                resolve(temp)
             })
             res.on('error', function (err) {
                 logger.errLogger.error("startWeather: " + err);
@@ -110,44 +124,15 @@ function startWeather(weather_url, id) {
     })
 }
 
-function databaseStart() {
-    connection.connect(function (err) {
-        if (err) {
-            logger.errLogger.error("Ошибка: " + err.message);
-        }
-        else {
-            logger.appLogger.info("Подключение к серверу MySQL успешно установлено");
-        }
-    })
-}
-
-function setWeather(data) {
-    let connection = mysql.createConnection({
-        host: env.databaseSql.host,
-        user: env.databaseSql.user,
-        database: "bot_info",
-        password: env.databaseSql.password,
-        port: env.databaseSql.port
-    });
+function setWeather(data, connection_set = {}) {
     let query = `INSERT INTO weather (city, description, temp, dow, wind_speed, pressure, humidity, temp_min, temp_max, wind_deg, clouds_percent, sunrise, sunset) VALUES (\'${data.city}\', \'${data.description}\', \'${data.temp}\', \'${data.day}\', \'${data.speed}\', \'${data.pressure}\', \'${data.humidity}\', \'${data.temp_min}\', \'${data.temp_max}\', \'${data.wind_deg}\', \'${data.clouds_percent}\', \'${data.sunrise}\', \'${data.sunset}\')`
-    logger.appLogger.info(query)
-    connection.query(query,
+    logger.appLogger.info('setWeather ' + query)
+    return connection_set.query(query,
         function (err, results, fields) {
             logger.errLogger.error('setWeather - Erorr' + err);
             logger.appLogger.info(results);
             logger.appLogger.info(fields);
         });
-}
-
-function databaseEnd() {
-    connection.end(function (err) {
-        if (err) {
-            logger.errLogger.error("Ошибка: " + err.message);
-            return false
-        }
-        logger.appLogger.info("Подключение закрыто");
-        return true
-    });
 }
 
 function dayOfWeekRus(day = new Date()) {
