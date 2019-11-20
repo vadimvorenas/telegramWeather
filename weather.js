@@ -21,7 +21,7 @@ let url = `http://api.openweathermap.org/data/2.5/weather?q=${city}&appid=f025da
 let lviv = `http://api.openweathermap.org/data/2.5/weather?q=Lviv,%20UA&appid=f025da743193e6d3a8af87677975d1e9&units=metric&lang=ru`
 
 startScriptWeather()
-cron.schedule('*/30 * * * *', () => {
+cron.schedule('0 * * * *', () => {
     startScriptWeather()
 })
 
