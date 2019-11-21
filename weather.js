@@ -83,7 +83,8 @@ function startWeather(weather_url, id) {
                 let result = JSON.parse(chunk)
                 let day = dayOfWeekRus()
                 let sun = (timestamp) => { let date = new Date(timestamp); return `${date.getHours()}:${date.getMinutes()}` }
-                let msg = `В ${result.name} ${result.main.temp}°C\n${result.wind.speed}м/с, влажность ${result.main.humidity}%\nСейчас ${result['weather']['0']['description']} (${result.clouds.all}%)\nВосход: ${sun(result.sys.sunrise * 1000)} Закат: ${sun(result.sys.sunset * 1000)}`
+                let wind_deg = windDeg(result.wind.deg)
+                let msg = `В ${result.name} ${result.main.temp}°C\n${result.wind.speed}м/с:${wind_deg}, влажность ${result.main.humidity}%\nСейчас ${result['weather']['0']['description']} (${result.clouds.all}%)\nВосход: ${sun(result.sys.sunrise * 1000)} Закат: ${sun(result.sys.sunset * 1000)}`
                 logger.appLogger.info(result)
                 logger.appLogger.info(msg)
                 bot.telegram.sendMessage(id, msg)
@@ -122,6 +123,32 @@ function startWeather(weather_url, id) {
             })
         })
     })
+}
+
+function windDeg(wind_deg) {
+    let result = ''
+    if (!wind_deg) {
+        return result
+    } else if (wind_deg > 337 && wind_deg <= 22) {
+        result = 'C'
+    } else if (wind_deg > 22 && wind_deg <= 67) {
+        result = 'С-В'
+    } else if (wind_deg > 67 && wind_deg <= 112) {
+        result = 'В'
+    } else if (wind_deg > 112 && wind_deg <= 157) {
+        result = 'Ю-В'
+    } else if (wind_deg > 157 && wind_deg <= 202) {
+        result = 'Ю'
+    } else if (wind_deg > 202 && wind_deg <= 247) {
+        result = 'Ю-З'
+    } else if (wind_deg > 247 && wind_deg <= 292) {
+        result = 'З'
+    } else if (wind_deg > 292 && wind_deg <= 337) {
+        result = 'С-З'
+    } else {
+        result = ''
+    }
+    return result
 }
 
 function setWeather(data, connection_set = {}) {
